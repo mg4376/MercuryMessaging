@@ -43,7 +43,43 @@ namespace MercuryMessaging
     /// the framework-provided MmMethods.
     /// </summary>
 	public class MmBaseResponder : MmResponder
-	{
+    {
+        Dictionary<MmMethod, Action<MmMessage>> MmFuncDict = new Dictionary<MmMethod, Action<MmMessage>>();
+
+        /// <summary>
+        /// Awake gets the MmRelayNode, if one is present.
+        /// Also calls the post-awake callback.
+        /// </summary>
+        public override void Awake()
+        {
+            MmLogger.LogFramework(gameObject.name + ": Base Responder Awake & Adding Base Functionality to Dict");
+
+            MmFuncDict.Add(MmMethod.NoOp, delegate(MmMessage msg) { ExecuteNoOp(msg); });
+            MmFuncDict.Add(MmMethod.SetActive, delegate(MmMessage msg) { ExecuteSetActive(msg); });
+            MmFuncDict.Add(MmMethod.Refresh, delegate (MmMessage msg) { ExecuteRefresh(msg); });
+            MmFuncDict.Add(MmMethod.Initialize, delegate (MmMessage msg) { ExecuteInitalize(msg); });
+            MmFuncDict.Add(MmMethod.Switch, delegate (MmMessage msg) { ExecuteSwitch(msg); });
+            MmFuncDict.Add(MmMethod.Complete, delegate (MmMessage msg) { ExecuteComplete(msg); });
+            MmFuncDict.Add(MmMethod.TaskInfo, delegate (MmMessage msg) { ExecuteTaskInfo(msg); });
+            MmFuncDict.Add(MmMethod.Message, delegate (MmMessage msg) { ExecuteMessage(msg); });
+            MmFuncDict.Add(MmMethod.MessageBool, delegate (MmMessage msg) { ExecuteMessageBool(msg); });
+            MmFuncDict.Add(MmMethod.MessageByteArray, delegate (MmMessage msg) { ExecuteMessageByteArray(msg); });
+            MmFuncDict.Add(MmMethod.MessageFloat, delegate (MmMessage msg) { ExecuteMessageFloat(msg); });
+            MmFuncDict.Add(MmMethod.MessageInt, delegate (MmMessage msg) { ExecuteMessageInt(msg); });
+            MmFuncDict.Add(MmMethod.MessageSerializable, delegate (MmMessage msg) { ExecuteMessageSerializable(msg); });
+            MmFuncDict.Add(MmMethod.MessageString, delegate (MmMessage msg) { ExecuteTaskInfo(msg); });
+            MmFuncDict.Add(MmMethod.MessageTransform, delegate (MmMessage msg) { ExecuteMessageTransform(msg); });
+            MmFuncDict.Add(MmMethod.MessageTransformList, delegate (MmMessage msg) { ExecuteMessageTransformList(msg); });
+            MmFuncDict.Add(MmMethod.MessageVector3, delegate (MmMessage msg) { ExecuteMessageVector3(msg); });
+            MmFuncDict.Add(MmMethod.MessageVector4, delegate (MmMessage msg) { ExecuteMessageVector4(msg); });
+            MmFuncDict.Add(MmMethod.MessageGameObject, delegate (MmMessage msg) { ExecuteMessageGameObject(msg); });
+        }
+
+        protected void AddMethod(MmMethod myType, Action<MmMessage> myMethod)
+        {
+            MmFuncDict.Add(myType, myMethod);
+        }
+
         /// <summary>
         /// Invoke an MmMethod. 
         /// Implements a switch that handles the different MmMethods
@@ -60,74 +96,118 @@ namespace MercuryMessaging
         {
             var type = msg.MmMethod;
 
-            switch (type)
+            if (MmFuncDict.ContainsKey(type))
             {
-                case MmMethod.NoOp:
-                    break;
-                case MmMethod.SetActive:
-                    var messageBool = (MmMessageBool) msg;
-                    SetActive(messageBool.value);
-                    break;
-                case MmMethod.Refresh:
-                    var messageTransform = (MmMessageTransformList) msg;
-                    Refresh(messageTransform.transforms);
-                    break;
-                case MmMethod.Initialize:
-                    Initialize();
-                    break;
-                case MmMethod.Switch:
-                    var messageString = (MmMessageString) msg;
-                    Switch(messageString.value);
-                    break;
-                case MmMethod.Complete:
-                    var messageCompleteBool = (MmMessageBool) msg;
-                    Complete(messageCompleteBool.value);
-                    break;
-                case MmMethod.TaskInfo:
-                    var messageSerializable = (MmMessageSerializable) msg;
-                    ApplyTaskInfo(messageSerializable.value);
-                    break;
-                case MmMethod.Message:
-                    ReceivedMessage(msg);
-                    break;
-                case MmMethod.MessageBool:
-                    ReceivedMessage((MmMessageBool) msg);
-                    break;
-                case MmMethod.MessageByteArray:
-                    ReceivedMessage((MmMessageByteArray) msg);
-                    break;
-                case MmMethod.MessageFloat:
-                    ReceivedMessage((MmMessageFloat) msg);
-                    break;
-                case MmMethod.MessageInt:
-                    ReceivedMessage((MmMessageInt) msg);
-                    break;
-                case MmMethod.MessageSerializable:
-                    ReceivedMessage((MmMessageSerializable) msg);
-                    break;
-                case MmMethod.MessageString:
-                    ReceivedMessage((MmMessageString) msg);
-					break;
-                case MmMethod.MessageTransform:
-                    ReceivedMessage((MmMessageTransform) msg);
-                    break;
-                case MmMethod.MessageTransformList:
-                    ReceivedMessage((MmMessageTransformList) msg);
-                    break;
-                case MmMethod.MessageVector3:
-                    ReceivedMessage((MmMessageVector3) msg);
-                    break;
-                case MmMethod.MessageVector4:
-                    ReceivedMessage((MmMessageVector4) msg);
-                    break;
-                case MmMethod.MessageGameObject:
-                    ReceivedMessage((MmMessageGameObject) msg);
-                    break;
-                default:
-                    Debug.Log(msg.MmMethod.ToString());
-                    throw new ArgumentOutOfRangeException();
+                MmFuncDict[type].Invoke(msg);
+            }
+            else
+            {
+                Debug.Log(msg.MmMethod.ToString());
+                throw new ArgumentOutOfRangeException();
             }
         }
+
+        public virtual void ExecuteNoOp(MmMessage msg)
+        {
+
+        }
+
+        public virtual void ExecuteSetActive(MmMessage msg)
+        {
+            var messageBool = (MmMessageBool)msg;
+            SetActive(messageBool.value);
+        }
+
+        public virtual void ExecuteRefresh(MmMessage msg)
+        {
+            var messageTransform = (MmMessageTransformList)msg;
+            Refresh(messageTransform.transforms);
+        }
+
+        public virtual void ExecuteInitalize(MmMessage msg)
+        {
+            Initialize();
+        }
+
+        public virtual void ExecuteSwitch(MmMessage msg)
+        {
+            var messageString = (MmMessageString)msg;
+            Switch(messageString.value);
+        }
+
+        public virtual void ExecuteComplete(MmMessage msg)
+        {
+            var messageCompleteBool = (MmMessageBool)msg;
+            Complete(messageCompleteBool.value);
+        }
+
+        public virtual void ExecuteTaskInfo(MmMessage msg)
+        {
+            var messageSerializable = (MmMessageSerializable)msg;
+            ApplyTaskInfo(messageSerializable.value);
+        }
+
+        public virtual void ExecuteMessage(MmMessage msg)
+        {
+            ReceivedMessage(msg);
+        }
+
+        public virtual void ExecuteMessageBool(MmMessage msg)
+        {
+            ReceivedMessage((MmMessageBool)msg);
+        }
+
+        public virtual void ExecuteMessageByteArray(MmMessage msg)
+        {
+            ReceivedMessage((MmMessageByteArray)msg);
+        }
+
+        public virtual void ExecuteMessageFloat(MmMessage msg)
+        {
+            ReceivedMessage((MmMessageFloat)msg);
+        }
+
+        public virtual void ExecuteMessageInt(MmMessage msg)
+        {
+            ReceivedMessage((MmMessageInt)msg);
+        }
+
+        public virtual void ExecuteMessageSerializable(MmMessage msg)
+        {
+            ReceivedMessage((MmMessageSerializable)msg);
+        }
+
+        public virtual void ExecuteMessageString(MmMessage msg)
+        {
+            ReceivedMessage((MmMessageString)msg);
+        }
+
+        public virtual void ExecuteMessageTransform(MmMessage msg)
+        {
+            ReceivedMessage((MmMessageTransform)msg);
+        }
+
+        public virtual void ExecuteMessageTransformList(MmMessage msg)
+        {
+            ReceivedMessage((MmMessageTransformList)msg);
+        }
+
+        public virtual void ExecuteMessageVector3(MmMessage msg)
+        {
+            ReceivedMessage((MmMessageVector3)msg);
+        }
+
+        public virtual void ExecuteMessageVector4(MmMessage msg)
+        {
+            ReceivedMessage((MmMessageVector4)msg);
+        }
+
+        public virtual void ExecuteMessageGameObject(MmMessage msg)
+        {
+            ReceivedMessage((MmMessageGameObject)msg);
+        }
+
+
 
 
         #region Base Message Handlers
