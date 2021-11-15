@@ -44,6 +44,10 @@ namespace MercuryMessaging
     /// </summary>
 	public class MmBaseResponder : MmResponder
     {
+        /// <summary>
+        /// Dictionary that holds all the pairs relating MmMethod types to their corresponding
+        /// execute ReceivedMessage methods.
+        /// </summary>
         Dictionary<MmMethod, Action<MmMessage>> MmFuncDict = new Dictionary<MmMethod, Action<MmMessage>>();
 
         /// <summary>
@@ -75,6 +79,13 @@ namespace MercuryMessaging
             MmFuncDict.Add(MmMethod.MessageGameObject, delegate (MmMessage msg) { ExecuteMessageGameObject(msg); });
         }
 
+        /// <summary>
+        /// Add a type, method pair to the dictionary for easy message handling.
+        /// A custom MmMethod or currently existing MmMethod can be used as the key.
+        /// A custom method passing in one MmMessage as a parameter can be set as the value.
+        /// </summary>
+        /// <param name="myType">A custom MmMethod type as the key for the dictionary.</param>
+        /// <param name="myMethod">A custom method that will be called as the value for the dictionary.</param>
         protected void AddMethod(MmMethod myType, Action<MmMessage> myMethod)
         {
             MmFuncDict.Add(myType, myMethod);
@@ -107,107 +118,208 @@ namespace MercuryMessaging
             }
         }
 
+        #region Execute Message Handlers
+        /// <summary>
+        /// Executes MmMessage for NoOp type.
+        /// Ignores the given message.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteNoOp(MmMessage msg)
         {
 
         }
 
+        /// <summary>
+        /// Executes MmMessage for the SetActive type.
+        /// We convert the MmMessage to MmMessageBool and immediatly apply
+        /// the SetActive method on it.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteSetActive(MmMessage msg)
         {
             var messageBool = (MmMessageBool)msg;
             SetActive(messageBool.value);
         }
 
+        /// <summary>
+        /// Executes MmMessage for the Refresh type.
+        /// We convert the MmMessage to MmMessageTransformList and immediatly apply
+        /// the Refresh method on it.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteRefresh(MmMessage msg)
         {
             var messageTransform = (MmMessageTransformList)msg;
             Refresh(messageTransform.transforms);
         }
 
+        /// <summary>
+        /// Executes MmMessage for the Initialize type.
+        /// We just call initialize in this method.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteInitalize(MmMessage msg)
         {
             Initialize();
         }
 
+        /// <summary>
+        /// Executes MmMessage for the Switch type.
+        /// We convert the MmMessage to MmMessageString and immediatly apply
+        /// the Switch method on it.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteSwitch(MmMessage msg)
         {
             var messageString = (MmMessageString)msg;
             Switch(messageString.value);
         }
 
+        /// <summary>
+        /// Executes MmMessage for the Complete type.
+        /// We convert the MmMessage to MmMessageBool and immediatly apply
+        /// the Complete method on it.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteComplete(MmMessage msg)
         {
             var messageCompleteBool = (MmMessageBool)msg;
             Complete(messageCompleteBool.value);
         }
 
+        /// <summary>
+        /// Executes MmMessage for the TaskInfo type.
+        /// We convert the MmMessage to MmMessageSerializiable and immediatly apply
+        /// the ApplyTaskInfo method on it.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteTaskInfo(MmMessage msg)
         {
             var messageSerializable = (MmMessageSerializable)msg;
             ApplyTaskInfo(messageSerializable.value);
         }
 
+        /// <summary>
+        /// Executes MmMessage for non-specific type.
+        /// We call an overridable ReceivedMessage function on the passed message.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteMessage(MmMessage msg)
         {
             ReceivedMessage(msg);
         }
 
+        /// <summary>
+        /// Executes MmMessage for known bool type.
+        /// We call an overridable ReceivedMessage function on the passed message.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteMessageBool(MmMessage msg)
         {
             ReceivedMessage((MmMessageBool)msg);
         }
 
+        /// <summary>
+        /// Executes MmMessage for known bytearray type.
+        /// We call an overridable ReceivedMessage function on the passed message.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteMessageByteArray(MmMessage msg)
         {
             ReceivedMessage((MmMessageByteArray)msg);
         }
 
+        /// <summary>
+        /// Executes MmMessage for known float type.
+        /// We call an overridable ReceivedMessage function on the passed message.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteMessageFloat(MmMessage msg)
         {
             ReceivedMessage((MmMessageFloat)msg);
         }
 
+        /// <summary>
+        /// Executes MmMessage for known int type.
+        /// We call an overridable ReceivedMessage function on the passed message.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteMessageInt(MmMessage msg)
         {
             ReceivedMessage((MmMessageInt)msg);
         }
 
+        /// <summary>
+        /// Executes MmMessage for known serializable type.
+        /// We call an overridable ReceivedMessage function on the passed message.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteMessageSerializable(MmMessage msg)
         {
             ReceivedMessage((MmMessageSerializable)msg);
         }
 
+        /// <summary>
+        /// Executes MmMessage for known string type.
+        /// We call an overridable ReceivedMessage function on the passed message.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteMessageString(MmMessage msg)
         {
             ReceivedMessage((MmMessageString)msg);
         }
 
+        /// <summary>
+        /// Executes MmMessage for known transform type.
+        /// We call an overridable ReceivedMessage function on the passed message.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteMessageTransform(MmMessage msg)
         {
             ReceivedMessage((MmMessageTransform)msg);
         }
 
+        /// <summary>
+        /// Executes MmMessage for known transformlist type.
+        /// We call an overridable ReceivedMessage function on the passed message.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteMessageTransformList(MmMessage msg)
         {
             ReceivedMessage((MmMessageTransformList)msg);
         }
 
+        /// <summary>
+        /// Executes MmMessage for known vector3 type.
+        /// We call an overridable ReceivedMessage function on the passed message.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteMessageVector3(MmMessage msg)
         {
             ReceivedMessage((MmMessageVector3)msg);
         }
 
+        /// <summary>
+        /// Executes MmMessage for known vector4 type.
+        /// We call an overridable ReceivedMessage function on the passed message.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteMessageVector4(MmMessage msg)
         {
             ReceivedMessage((MmMessageVector4)msg);
         }
 
+        /// <summary>
+        /// Executes MmMessage for known GameObject type.
+        /// We call an overridable ReceivedMessage function on the passed message.
+        /// </summary>
+        /// <param name="msg">The received Mercury Message.</param>
         public virtual void ExecuteMessageGameObject(MmMessage msg)
         {
             ReceivedMessage((MmMessageGameObject)msg);
         }
 
-
+        #endregion
 
 
         #region Base Message Handlers
