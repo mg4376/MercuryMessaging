@@ -51,15 +51,14 @@ namespace MercuryMessaging
         Dictionary<MmMethod, Action<MmMessage>> MmFuncDict = new Dictionary<MmMethod, Action<MmMessage>>();
 
         /// <summary>
-        /// Awake gets the MmRelayNode, if one is present.
-        /// Also calls the post-awake callback.
+        /// Move awake code to constructor in case object starts unactive.
         /// </summary>
-        public override void Awake()
+        public MmBaseResponder()
         {
-            MmLogger.LogFramework(gameObject.name + ": Base Responder Awake & Adding Base Functionality to Dict");
+            //MmLogger.LogFramework(gameObject.name + ": Base Responder Awake & Adding Base Functionality to Dict");
 
-            MmFuncDict.Add(MmMethod.NoOp, delegate(MmMessage msg) { ExecuteNoOp(msg); });
-            MmFuncDict.Add(MmMethod.SetActive, delegate(MmMessage msg) { ExecuteSetActive(msg); });
+            MmFuncDict.Add(MmMethod.NoOp, delegate (MmMessage msg) { ExecuteNoOp(msg); });
+            MmFuncDict.Add(MmMethod.SetActive, delegate (MmMessage msg) { ExecuteSetActive(msg); });
             MmFuncDict.Add(MmMethod.Refresh, delegate (MmMessage msg) { ExecuteRefresh(msg); });
             MmFuncDict.Add(MmMethod.Initialize, delegate (MmMessage msg) { ExecuteInitalize(msg); });
             MmFuncDict.Add(MmMethod.Switch, delegate (MmMessage msg) { ExecuteSwitch(msg); });
